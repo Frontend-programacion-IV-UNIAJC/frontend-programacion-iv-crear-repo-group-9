@@ -1,1 +1,2 @@
-# frontend-programacion-iv-crear-repo-group-9
+# frontend-programacion-iv-Etiqueta-Clara
+Andrea valentina ochoa - Andres felipe velez
