@@ -1,2 +1,5 @@
 # frontend-programacion-iv-Etiqueta-Clara
-Andrea valentina ochoa - Andres felipe velez
+
+#Andrea Valentina Ochoa usuario 1
+
+#Andres Felipe Velez Usuario 2 
