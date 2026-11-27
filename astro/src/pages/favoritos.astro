@@ -1,0 +1,258 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { obtenerSnacks } from "../services/api.js";
+
+const { items, desdeRespaldo } = await obtenerSnacks();
+const base = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+---
+
+<Layout
+  titulo="Favoritos — EtiquetaClara"
+  descripcion="Snacks guardados en favoritos para consultar rápido."
+>
+  <section class="contenedor pagina">
+    <p class="rotulo">Favoritos</p>
+    <div class="cabecera">
+      <h1>Productos guardados</h1>
+      <button id="limpiar-favoritos" type="button" class="btn-limpiar" hidden>
+        Quitar todos
+      </button>
+    </div>
+
+    {desdeRespaldo && (
+      <p class="aviso-respaldo" role="status">
+        Mostrando datos de respaldo porque la API no respondió durante la construcción.
+      </p>
+    )}
+
+    <div id="estado-vacio" class="vacio" hidden>
+      <p>Aún no tienes snacks guardados en favoritos.</p>
+      <a class="btn-ir-catalogo" href={`${base}catalogo.astro`}>Ir al catálogo</a>
+    </div>
+
+    <div id="lista-favoritos" class="grilla">
+      {items.map((snack) => {
+        const srcImagen = !snack.imagen
+          ? ""
+          : snack.imagen.startsWith("http")
+            ? snack.imagen
+            : `${base}${snack.imagen.replace(/^\/+/, "")}`;
+
+        return (
+          <article class="tarjeta" data-snack-id={snack.id} hidden>
+            <div class="tarjeta_media">
+              {srcImagen ? (
+                <img src={srcImagen} alt="" loading="lazy" width="320" height="240" />
+              ) : (
+                <span class="sin-foto" aria-hidden="true">Sin foto</span>
+              )}
+            </div>
+            <div class="tarjeta_cuerpo">
+              <p class="tarjeta_marca">{snack.marca}</p>
+              <h2 class="tarjeta_titulo">
+                <a href={`${base}catalogo/${encodeURIComponent(snack.id)}/`}>{snack.nombre}</a>
+              </h2>
+              <button
+                type="button"
+                class="btn-quitar"
+                data-quitar-id={snack.id}
+              >
+                Quitar de favoritos
+              </button>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  </section>
+</Layout>
+
+<script>
+  const clave = "etiquetaclara_favoritos";
+  const tarjetas = Array.from(document.querySelectorAll("[data-snack-id]"));
+  const estadoVacio = document.getElementById("estado-vacio");
+  const botonLimpiar = document.getElementById("limpiar-favoritos");
+
+  const leerIds = () => {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(clave) || "[]");
+      return Array.isArray(parsed) ? parsed.map(String) : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const guardarIds = (ids) => {
+    localStorage.setItem(clave, JSON.stringify(ids));
+  };
+
+  const renderizar = () => {
+    const idsActivos = new Set(leerIds());
+    let visibles = 0;
+
+    for (const tarjeta of tarjetas) {
+      if (!(tarjeta instanceof HTMLElement)) continue;
+      const id = tarjeta.dataset.snackId ?? "";
+      const mostrar = idsActivos.has(id);
+      tarjeta.hidden = !mostrar;
+      if (mostrar) visibles += 1;
+    }
+
+    if (estadoVacio instanceof HTMLElement) {
+      estadoVacio.hidden = visibles > 0;
+    }
+
+    if (botonLimpiar instanceof HTMLElement) {
+      botonLimpiar.hidden = visibles === 0;
+    }
+  };
+
+  document.addEventListener("click", (event) => {
+    const objetivo = event.target;
+    if (!(objetivo instanceof HTMLElement)) return;
+
+    const idQuitar = objetivo.dataset.quitarId;
+    if (idQuitar) {
+      const restantes = leerIds().filter((id) => id !== idQuitar);
+      guardarIds(restantes);
+      renderizar();
+    }
+  });
+
+  botonLimpiar?.addEventListener("click", () => {
+    guardarIds([]);
+    renderizar();
+  });
+
+  renderizar();
+</script>
+
+<style>
+  .pagina {
+    padding-block: var(--esp-5);
+    display: grid;
+    gap: var(--esp-4);
+  }
+
+  .pagina h1 {
+    margin: 0;
+    font-size: var(--texto-xl);
+  }
+
+  .cabecera {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--esp-3);
+  }
+
+  .btn-limpiar,
+  .btn-quitar,
+  .btn-ir-catalogo {
+    min-height: 44px;
+    padding: 0 var(--esp-3);
+    border-radius: var(--radio-s);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .btn-limpiar,
+  .btn-quitar {
+    border: 1px solid var(--color-borde);
+    background: var(--color-superficie);
+    color: var(--color-texto);
+  }
+
+  .btn-ir-catalogo {
+    background: var(--color-marca);
+    color: #ffffff;
+    border: 0;
+  }
+
+  .grilla {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--esp-4);
+  }
+
+  .tarjeta {
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-m);
+    background: var(--color-fondo);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--sombra-1);
+  }
+
+  .tarjeta_media {
+    aspect-ratio: 4 / 3;
+    background: var(--color-superficie);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+
+  .tarjeta_media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .sin-foto {
+    color: var(--color-texto-suave);
+    font-size: var(--texto-sm);
+    font-weight: 600;
+  }
+
+  .tarjeta_cuerpo {
+    padding: var(--esp-3);
+    display: grid;
+    gap: var(--esp-2);
+    min-width: 0;
+  }
+
+  .tarjeta_marca {
+    margin: 0;
+    font-size: var(--texto-sm);
+    color: var(--color-texto-suave);
+    overflow-wrap: anywhere;
+  }
+
+  .tarjeta_titulo {
+    margin: 0;
+    font-size: var(--texto-base);
+    overflow-wrap: anywhere;
+  }
+
+  .tarjeta_titulo a {
+    text-decoration: none;
+  }
+
+  .tarjeta_titulo a:hover {
+    text-decoration: underline;
+    color: var(--color-marca);
+  }
+
+  .vacio {
+    padding: var(--esp-5);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-m);
+    background: var(--color-superficie);
+    display: grid;
+    gap: var(--esp-3);
+    justify-items: start;
+  }
+
+  .vacio p {
+    margin: 0;
+    color: var(--color-texto-suave);
+  }
+</style>
