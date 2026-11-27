@@ -1,0 +1,7 @@
+schema: "classroom50/repo-config/v1"
+classroom: "frontend-programacion-iv"
+assignment: "crear-repo"
+owner:
+  username: "Andrea-150"
+  id: 331088073
+  accepted_at: "2026-09-19T01:43:29Z"
