@@ -109,7 +109,7 @@ const srcImagen = !snack.imagen
         return [];
       }
     };
-    const guardarFavs = (lista) => localStorage.setItem(clave, JSON.stringify(lista));
+    const guardarFavs = (lista: string[]) => localStorage.setItem(clave, JSON.stringify(lista));
 
     const actualizarEstado = () => {
       const activo = leerFavs().includes(id);
@@ -122,7 +122,7 @@ const srcImagen = !snack.imagen
     boton.addEventListener("click", () => {
       const actual = leerFavs();
       const existe = actual.includes(id);
-      const siguiente = existe ? actual.filter((x) => x !== id) : [...actual, id];
+      const siguiente = existe ? actual.filter((x: string) => x !== id) : [...actual, id];
       guardarFavs(siguiente);
       actualizarEstado();
     });

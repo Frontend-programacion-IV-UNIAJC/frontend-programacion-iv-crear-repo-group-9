@@ -84,7 +84,7 @@ const base = import.meta.env.BASE_URL.endsWith("/")
     }
   };
 
-  const guardarIds = (ids) => {
+  const guardarIds = (ids: string[]) => {
     localStorage.setItem(clave, JSON.stringify(ids));
   };
 
