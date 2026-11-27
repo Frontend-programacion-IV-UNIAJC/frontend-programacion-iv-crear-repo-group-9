@@ -15,27 +15,27 @@ const base = import.meta.env.BASE_URL.endsWith("/")
     <h1>EtiquetaClara — Lector de Nutrición</h1>
 
     <p class="lead">
-      EtiquetaClara ayuda a consultar ingredientes, nutrientes y alérgenos declarados en snacks de forma rápida y legible, pensada para compras en el supermercado[span_6](start_span)[span_6](end_span).
+      EtiquetaClara ayuda a consultar ingredientes, nutrientes y alérgenos declarados en snacks de forma rápida y legible, pensada para compras en el supermercado(start_span)(end_span).
     </p>
 
     <section class="card" aria-labelledby="tit-criterios">
       <h2 id="tit-criterios">Cómo tratamos la información</h2>
       <ul>
         <li>
-          <strong>Solo datos declarados:</strong> no asignamos puntajes, semáforos ni etiquetas de "bueno" o "malo[span_7](start_span)"[span_7](end_span).
+          <strong>Solo datos declarados:</strong> no asignamos puntajes, semáforos ni etiquetas de "bueno" o "malo(start_span)"(end_span).
         </li>
         <li>
-          <strong>Datos faltantes transparentes:</strong> si un fabricante no declara un campo o falta una imagen, mostramos un aviso neutro o <em>"Sin información declarada"</em> en lugar de asumir que no contiene alérgenos[span_8](start_span)[span_8](end_span).
+          <strong>Datos faltantes transparentes:</strong> si un fabricante no declara un campo o falta una imagen, mostramos un aviso neutro o <em>"Sin información declarada"</em> en lugar de asumir que no contiene alérgenos(start_span)(end_span).
         </li>
         <li>
-          <strong>Valores estimados:</strong> cuando un dato se aproxima o se calcula por porción/presentación, se indica explícitamente[span_9](start_span)[span_9](end_span).
+          <strong>Valores estimados:</strong> cuando un dato se aproxima o se calcula por porción/presentación, se indica explícitamente(start_span)(end_span).
         </li>
       </ul>
     </section>
 
     <div class="acciones">
-      <a class="btn-primario" href={`${base}catalogo.astro`}>Explorar catálogo</a>
-      <a class="btn-secundario" href={`${base}contacto.astro`}>Ir a contacto</a>
+      <a class="btn-primario" href={`${base}catalogo/`}>Explorar catálogo</a>
+      <a class="btn-secundario" href={`${base}contacto/`}>Ir a contacto</a>
     </div>
   </section>
 </Layout>
