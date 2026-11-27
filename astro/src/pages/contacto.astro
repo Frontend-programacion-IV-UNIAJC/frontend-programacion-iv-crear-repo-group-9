@@ -1,0 +1,138 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout
+  titulo="Contacto — EtiquetaClara"
+  descripcion="Reporta discrepancias en etiquetas o envía comentarios sobre EtiquetaClara."
+>
+  <section class="contenedor pagina">
+    <p class="rotulo">Contacto</p>
+    <h1>Escríbenos</h1>
+    <p class="subtitulo">
+      Si notaste un dato incompleto en un snack o quieres compartir una observación sobre la lectura de etiquetas, déjanos tu mensaje[span_10](start_span)[span_10](end_span).
+    </p>
+
+    <form id="form-contacto" class="formulario" novalidate>
+      <div class="campo">
+        <label for="nombre">Nombre</label>
+        <input id="nombre" name="nombre" type="text" required placeholder="Tu nombre" />
+      </div>
+
+      <div class="campo">
+        <label for="correo">Correo electrónico</label>
+        <input id="correo" name="correo" type="email" required placeholder="correo@ejemplo.com" />
+      </div>
+
+      <div class="campo">
+        <label for="mensaje">Mensaje o producto a revisar</label>
+        <textarea
+          id="mensaje"
+          name="mensaje"
+          rows="4"
+          required
+          placeholder="Indica el nombre del producto, la marca o el detalle que deseas reportar..."
+        ></textarea>
+      </div>
+
+      <button type="submit" class="btn-enviar">Enviar mensaje</button>
+      <p id="estado-envio" class="estado-envio" role="status" aria-live="polite" hidden></p>
+    </form>
+  </section>
+</Layout>
+
+<script>
+  const form = document.getElementById("form-contacto");
+  const estado = document.getElementById("estado-envio");
+
+  if (form instanceof HTMLFormElement && estado instanceof HTMLElement) {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const datos = new FormData(form);
+      const nombre = String(datos.get("nombre") || "").trim();
+      const correo = String(datos.get("correo") || "").trim();
+      const mensaje = String(datos.get("mensaje") || "").trim();
+
+      if (!nombre || !correo || !mensaje) {
+        estado.hidden = false;
+        estado.textContent = "Por favor completa nombre, correo y mensaje antes de enviar.";
+        return;
+      }
+
+      estado.hidden = false;
+      estado.textContent = `Gracias, ${nombre}. Tu mensaje quedó registrado en esta vista de prueba.`;
+      form.reset();
+    });
+  }
+</script>
+
+<style>
+  .pagina {
+    padding-block: var(--esp-5);
+    display: grid;
+    gap: var(--esp-4);
+    max-width: 680px;
+  }
+
+  .pagina h1 {
+    margin: 0;
+    font-size: var(--texto-xl);
+  }
+
+  .subtitulo {
+    margin: 0;
+    color: var(--color-texto-suave);
+  }
+
+  .formulario {
+    display: grid;
+    gap: var(--esp-4);
+    padding: var(--esp-4);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-m);
+    background: var(--color-superficie);
+  }
+
+  .campo {
+    display: grid;
+    gap: var(--esp-1);
+  }
+
+  .campo label {
+    font-weight: 600;
+    font-size: var(--texto-sm);
+  }
+
+  .campo input,
+  .campo textarea {
+    width: 100%;
+    padding: var(--esp-2) var(--esp-3);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-s);
+    background: var(--color-fondo);
+    color: var(--color-texto);
+    font: inherit;
+  }
+
+  .btn-enviar {
+    justify-self: start;
+    min-height: 44px;
+    padding: 0 var(--esp-5);
+    border: 0;
+    border-radius: var(--radio-s);
+    background: var(--color-marca);
+    color: #ffffff;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .estado-envio {
+    margin: 0;
+    padding: var(--esp-3);
+    border-radius: var(--radio-s);
+    background: var(--color-marca-suave);
+    color: var(--color-marca-oscuro);
+    font-weight: 600;
+  }
+</style>

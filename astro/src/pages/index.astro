@@ -1,16 +1,112 @@
 ---
+import Layout from "../layouts/Layout.astro";
+import TarjetaSnack from "../components/ui/TarjetaSnack.astro";
+import { obtenerSnacks } from "../services/api.js";
+
+const { items, desdeRespaldo } = await obtenerSnacks();
+const destacados = items.slice(0, 3);
+const base = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Etiqueta-Clara</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout titulo="EtiquetaClara — Lector de Nutrición">
+  <section class="contenedor portada">
+    <p class="rotulo">Lector de Nutrición</p>
+    <h1>EtiquetaClara</h1>
+    <p class="subtitulo">
+      Consulta ingredientes, nutrientes y alérgenos declarados en snacks para decidir rápido en el supermercado.
+    </p>
+
+    <div class="acciones">
+      <a class="boton-primario" href={`${base}catalogo/`}>Ir al catálogo</a>
+      <a class="boton-secundario" href={`${base}acerca-de/`}>Acerca de</a>
+      <a class="boton-secundario" href={`${base}contacto/`}>Contacto</a>
+    </div>
+
+    {desdeRespaldo && (
+      <p class="aviso-respaldo" role="status">
+        Mostrando datos de respaldo porque no se pudo consultar la API en este momento.
+      </p>
+    )}
+
+    <section aria-labelledby="tit-destacados" class="destacados">
+      <div class="destacados_cabecera">
+        <h2 id="tit-destacados">Destacados</h2>
+        <a href={`${base}catalogo/`}>Ver todos</a>
+      </div>
+      <div class="grilla">
+        {destacados.map((snack) => <TarjetaSnack snack={snack} />)}
+      </div>
+    </section>
+  </section>
+</Layout>
+
+<style>
+  .portada {
+    padding-block: var(--esp-5);
+    display: grid;
+    gap: var(--esp-4);
+  }
+
+  .portada h1 {
+    margin: 0;
+    font-size: var(--texto-xl);
+  }
+
+  .subtitulo {
+    margin: 0;
+    max-width: var(--ancho-lectura);
+    color: var(--color-texto-suave);
+  }
+
+  .acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--esp-3);
+  }
+
+  .boton-primario,
+  .boton-secundario {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 var(--esp-4);
+    border-radius: var(--radio-s);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .boton-primario {
+    background: var(--color-marca);
+    color: #ffffff;
+  }
+
+  .boton-secundario {
+    border: 1px solid var(--color-borde);
+    background: var(--color-superficie);
+  }
+
+  .destacados {
+    margin-top: var(--esp-3);
+    display: grid;
+    gap: var(--esp-4);
+  }
+
+  .destacados_cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .destacados_cabecera h2 {
+    margin: 0;
+    font-size: var(--texto-lg);
+  }
+
+  .grilla {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--esp-4);
+  }
+</style>
