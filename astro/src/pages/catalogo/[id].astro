@@ -1,0 +1,276 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { obtenerSnacks } from "../../services/api.js";
+
+export async function getStaticPaths() {
+  const { items } = await obtenerSnacks();
+  return items.map((snack) => ({
+    params: { id: String(snack.id) },
+    props: { snack },
+  }));
+}
+
+const { snack } = Astro.props;
+const base = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+
+const srcImagen = !snack.imagen
+  ? ""
+  : snack.imagen.startsWith("http")
+    ? snack.imagen
+    : `${base}${snack.imagen.replace(/^\/+/, "")}`;
+---
+
+<Layout titulo={`${snack.nombre} — EtiquetaClara`} descripcion={`Detalle de ${snack.nombre} (${snack.marca}).`}>
+  <div class="contenedor detalle">
+    <a class="detalle_volver" href={`${base}catalogo/`}>← Volver al catálogo</a>
+
+    <section class="detalle_cabecera">
+      <div class="detalle_visual">
+        {srcImagen ? (
+          <img class="detalle_imagen" src={srcImagen} alt={snack.nombre} width="640" height="480" />
+        ) : (
+          <div class="detalle_sin-imagen">El fabricante no entregó imagen del empaque</div>
+        )}
+      </div>
+
+      <div class="detalle_info">
+        <p class="rotulo">{snack.marca}</p>
+        <div class="detalle_titulo">
+          <h1>{snack.nombre}</h1>
+          <button type="button" class="btn-favorito" data-id={snack.id} aria-pressed="false">
+            Favorito
+          </button>
+        </div>
+        <p class="detalle_porcion">Porción / presentación: {snack.porcion}</p>
+      </div>
+    </section>
+
+    <section class="bloque" aria-labelledby="tit-ingredientes">
+      <h2 id="tit-ingredientes">Ingredientes declarados</h2>
+      {snack.ingredientes.length > 0 ? (
+        <ul>
+          {snack.ingredientes.map((ing) => <li>{ing}</li>)}
+        </ul>
+      ) : (
+        <p class="vacio">El fabricante no declaró esta información.</p>
+      )}
+    </section>
+
+    <section class="bloque" aria-labelledby="tit-nutrientes">
+      <h2 id="tit-nutrientes">Nutrientes</h2>
+      <dl class="nutrientes-grid">
+        <div>
+          <dt>Energía</dt>
+          <dd>{snack.nutrientes.energia}</dd>
+        </div>
+        <div>
+          <dt>Grasas</dt>
+          <dd>{snack.nutrientes.grasas}</dd>
+        </div>
+        <div>
+          <dt>Azúcares</dt>
+          <dd>{snack.nutrientes.azucares}</dd>
+        </div>
+        <div>
+          <dt>Sal</dt>
+          <dd>{snack.nutrientes.sal}</dd>
+        </div>
+        <div>
+          <dt>Proteínas</dt>
+          <dd>{snack.nutrientes.proteinas}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="bloque" aria-labelledby="tit-alergenos">
+      <h2 id="tit-alergenos">Alérgenos declarados</h2>
+      {snack.alergenos.length > 0 ? (
+        <ul class="alergenos-lista">
+          {snack.alergenos.map((alergeno) => <li>{alergeno}</li>)}
+        </ul>
+      ) : (
+        <p class="vacio">Sin información declarada.</p>
+      )}
+    </section>
+  </div>
+</Layout>
+
+<script>
+  const boton = document.querySelector(".btn-favorito");
+  if (boton instanceof HTMLButtonElement) {
+    const id = boton.dataset.id ?? "";
+    const clave = "etiquetaclara_favoritos";
+    const leerFavs = () => {
+      try {
+        return JSON.parse(localStorage.getItem(clave) || "[]");
+      } catch {
+        return [];
+      }
+    };
+    const guardarFavs = (lista) => localStorage.setItem(clave, JSON.stringify(lista));
+
+    const actualizarEstado = () => {
+      const activo = leerFavs().includes(id);
+      boton.setAttribute("aria-pressed", String(activo));
+      boton.textContent = activo ? "Guardado en favoritos" : "Guardar en favoritos";
+    };
+
+    actualizarEstado();
+
+    boton.addEventListener("click", () => {
+      const actual = leerFavs();
+      const existe = actual.includes(id);
+      const siguiente = existe ? actual.filter((x) => x !== id) : [...actual, id];
+      guardarFavs(siguiente);
+      actualizarEstado();
+    });
+  }
+</script>
+
+<style>
+  .detalle {
+    display: grid;
+    gap: var(--esp-5);
+    padding-block: var(--esp-5);
+  }
+
+  .detalle_volver {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 var(--esp-3);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-pildora);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .detalle_cabecera {
+    display: grid;
+    gap: var(--esp-4);
+    align-items: start;
+  }
+
+  @media (min-width: 900px) {
+    .detalle_cabecera {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--esp-6);
+    }
+  }
+
+  .detalle_visual {
+    background: var(--color-superficie);
+    border-radius: var(--radio-1);
+    overflow: hidden;
+    min-height: 240px;
+    display: grid;
+    place-items: center;
+  }
+
+  .detalle_imagen {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  .detalle_sin-imagen {
+    padding: var(--esp-4);
+    color: var(--color-texto-suave);
+    text-align: center;
+  }
+
+  .detalle_info {
+    min-width: 0;
+  }
+
+  .detalle_titulo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--esp-3);
+  }
+
+  .detalle_titulo h1 {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .btn-favorito {
+    min-height: 44px;
+    padding: 0 var(--esp-4);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-pildora);
+    background: var(--color-fondo);
+    color: var(--color-texto);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .btn-favorito[aria-pressed="true"] {
+    background: var(--color-marca-suave);
+    border-color: var(--color-marca);
+    color: var(--color-marca-oscuro);
+  }
+
+  .detalle_porcion {
+    margin-top: var(--esp-3);
+    color: var(--color-texto-suave);
+  }
+
+  .bloque {
+    padding: var(--esp-4);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-m);
+    background: var(--color-fondo);
+  }
+
+  .bloque h2 {
+    margin-top: 0;
+    font-size: var(--texto-lg);
+  }
+
+  .nutrientes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--esp-3);
+    margin: 0;
+  }
+
+  .nutrientes-grid dt {
+    font-weight: 700;
+    font-size: var(--texto-sm);
+    color: var(--color-texto-suave);
+  }
+
+  .nutrientes-grid dd {
+    margin: var(--esp-1) 0 0;
+  }
+
+  .alergenos-lista {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--esp-2);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .alergenos-lista li {
+    padding: var(--esp-1) var(--esp-3);
+    border-radius: var(--radio-pildora);
+    background: var(--color-superficie);
+    border: 1px solid var(--color-borde);
+    font-weight: 600;
+  }
+
+  .vacio {
+    margin: 0;
+    color: var(--color-texto-suave);
+  }
+</style>

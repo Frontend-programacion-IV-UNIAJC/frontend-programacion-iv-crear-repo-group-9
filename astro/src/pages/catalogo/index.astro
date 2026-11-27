@@ -1,0 +1,153 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import TarjetaSnack from "../../components/ui/TarjetaSnack.astro";
+import { obtenerSnacks } from "../../services/api.js";
+
+const { items, desdeRespaldo } = await obtenerSnacks();
+
+// Opciones de filtro calculadas desde los datos reales con Set
+const alergenosDisponibles = Array.from(
+  new Set(items.flatMap((snack) => snack.alergenos))
+).sort((a, b) => a.localeCompare(b, "es"));
+---
+
+<Layout titulo="Catálogo de snacks — EtiquetaClara">
+  <section class="contenedor catalogo">
+    <h1>Catálogo de snacks</h1>
+
+    {desdeRespaldo && (
+      <p class="aviso-respaldo" role="status">
+        Mostrando datos de respaldo porque la API no respondió durante la construcción.
+      </p>
+    )}
+
+    <div class="controles" role="region" aria-label="Buscar y filtrar snacks">
+      <div class="campo">
+        <label for="buscador-snack">Buscar por nombre o marca</label>
+        <input
+          id="buscador-snack"
+          type="search"
+          placeholder="Ej. galletas, maní, marca..."
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="campo">
+        <label for="filtro-alergeno">Alérgeno declarado</label>
+        <select id="filtro-alergeno">
+          <option value="">Todos los alérgenos declarados</option>
+          {alergenosDisponibles.map((alergeno) => (
+            <option value={alergeno.toLowerCase()}>{alergeno}</option>
+          ))}
+        </select>
+      </div>
+    </div>
+
+    <p id="mensaje-vacio" class="vacio" hidden>
+      No hay productos que coincidan con la búsqueda o el filtro seleccionado.
+    </p>
+
+    <div id="grilla-catalogo" class="grilla">
+      {items.map((snack) => (
+        <div
+          class="item-filtro"
+          data-texto={`${snack.nombre} ${snack.marca}`.toLowerCase()}
+          data-alergenos={snack.alergenos.join("|").toLowerCase()}
+        >
+          <TarjetaSnack snack={snack} />
+        </div>
+      ))}
+    </div>
+  </section>
+</Layout>
+
+<script>
+  const inputBusqueda = document.getElementById("buscador-snack");
+  const selectAlergeno = document.getElementById("filtro-alergeno");
+  const tarjetas = Array.from(document.querySelectorAll(".item-filtro"));
+  const mensajeVacio = document.getElementById("mensaje-vacio");
+
+  const filtrar = () => {
+    const texto = (inputBusqueda instanceof HTMLInputElement ? inputBusqueda.value : "").trim().toLowerCase();
+    const alergeno = selectAlergeno instanceof HTMLSelectElement ? selectAlergeno.value.trim().toLowerCase() : "";
+
+    let visibles = 0;
+
+    for (const nodo of tarjetas) {
+      if (!(nodo instanceof HTMLElement)) continue;
+      const campoTexto = nodo.dataset.texto ?? "";
+      const campoAlergenos = nodo.dataset.alergenos ?? "";
+
+      const coincideTexto = !texto || campoTexto.includes(texto);
+      const coincideAlergeno = !alergeno || campoAlergenos.split("|").includes(alergeno);
+
+      const mostrar = coincideTexto && coincideAlergeno;
+      nodo.hidden = !mostrar;
+      if (mostrar) visibles += 1;
+    }
+
+    if (mensajeVacio instanceof HTMLElement) {
+      mensajeVacio.hidden = visibles > 0;
+    }
+  };
+
+  inputBusqueda?.addEventListener("input", filtrar);
+  selectAlergeno?.addEventListener("change", filtrar);
+</script>
+
+<style>
+  .catalogo {
+    padding-block: var(--esp-5);
+    display: grid;
+    gap: var(--esp-4);
+  }
+
+  .catalogo h1 {
+    margin: 0;
+    font-size: var(--texto-xl);
+  }
+
+  .controles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--esp-3);
+    padding: var(--esp-3);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-m);
+    background: var(--color-superficie);
+  }
+
+  .campo {
+    display: grid;
+    gap: var(--esp-1);
+  }
+
+  .campo label {
+    font-weight: 600;
+    font-size: var(--texto-sm);
+  }
+
+  .campo input,
+  .campo select {
+    min-height: 44px;
+    padding: 0 var(--esp-3);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-s);
+    background: var(--color-fondo);
+    color: var(--color-texto);
+    font: inherit;
+  }
+
+  .grilla {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--esp-4);
+  }
+
+  .vacio {
+    padding: var(--esp-4);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-m);
+    color: var(--color-texto-suave);
+  }
+</style>

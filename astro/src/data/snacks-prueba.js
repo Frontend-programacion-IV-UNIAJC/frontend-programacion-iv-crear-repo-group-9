@@ -1,0 +1,36 @@
+export const snacksPrueba = [
+  {
+    id: "demo-1",
+    nombre: "Galletas de avena y miel",
+    marca: "Marca de ejemplo",
+    imagen: "",
+    ingredientes: ["Harina de trigo", "Hojuelas de avena", "Azúcar", "Aceite vegetal"],
+    nutrientes: {
+      energia: "450 kcal aprox.",
+      grasas: "16 g",
+      azucares: "14 g",
+      sal: "0.4 g",
+      proteinas: "6 g",
+    },
+    alergenos: ["Trigo / Gluten"],
+    porcion: "40 g aprox.",
+    esEstimado: true,
+  },
+  {
+    id: "demo-2",
+    nombre: "Maní tostado natural",
+    marca: "Sin marca declarada",
+    imagen: "",
+    ingredientes: ["Maní tostado", "Sal"],
+    nutrientes: {
+      energia: "Sin información declarada",
+      grasas: "Sin información declarada",
+      azucares: "Sin información declarada",
+      sal: "Sin información declarada",
+      proteinas: "Sin información declarada",
+    },
+    alergenos: ["Maní"],
+    porcion: "Sin información declarada",
+    esEstimado: false,
+  },
+];
