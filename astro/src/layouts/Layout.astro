@@ -1,0 +1,96 @@
+---
+import "../styles/variables.css";
+import "../styles/global.css";
+
+interface Props {
+  titulo: string;
+  descripcion?: string;
+}
+
+const { titulo, descripcion = "EtiquetaClara: consulta ingredientes, nutrientes y alérgenos declarados en snacks." } = Astro.props;
+const base = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={descripcion} />
+    <title>{titulo}</title>
+  </head>
+  <body>
+    <a class="saltar" href="#contenido-principal">Saltar al contenido principal</a>
+
+    <header class="encabezado">
+      <div class="contenedor encabezado_interior">
+        <a class="marca" href={base}>EtiquetaClara</a>
+        <nav aria-label="Navegación principal" class="navegacion">
+          <a href={base}>Inicio</a>
+          <a href={`${base}catalogo/`}>Catálogo</a>
+          <a href={`${base}acerca-de/`}>Acerca de</a>
+          <a href={`${base}contacto/`}>Contacto</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="contenido-principal">
+      <slot />
+    </main>
+
+    <footer class="pie">
+      <div class="contenedor">
+        <p>EtiquetaClara — Información declarada de etiquetas (sin diagnósticos ni calificaciones de salud).</p>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .encabezado {
+    border-bottom: 1px solid var(--color-borde);
+    background: var(--color-fondo);
+  }
+
+  .encabezado_interior {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--esp-3);
+    padding-block: var(--esp-3);
+  }
+
+  .marca {
+    font-weight: 700;
+    font-size: var(--texto-lg);
+    text-decoration: none;
+  }
+
+  .navegacion {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--esp-3);
+  }
+
+  .navegacion a {
+    text-decoration: none;
+    font-weight: 600;
+    padding: var(--esp-1) var(--esp-2);
+    border-radius: var(--radio-s);
+  }
+
+  .navegacion a:hover {
+    background: var(--color-superficie);
+  }
+
+  .pie {
+    margin-top: var(--esp-6);
+    padding-block: var(--esp-5);
+    border-top: 1px solid var(--color-borde);
+    color: var(--color-texto-suave);
+    font-size: var(--texto-sm);
+  }
+</style>
