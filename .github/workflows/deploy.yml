@@ -24,6 +24,7 @@ jobs:
       - name: Setup Astro
         uses: withastro/action@v3
         with:
+          node-version: 22
           path: ./astro
 
   publicar:
